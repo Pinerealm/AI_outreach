@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: ai-outreach-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ai_outreach
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMAIL_SERVICE_API_KEY=${EMAIL_SERVICE_API_KEY}
+      - ENVIRONMENT=production
+    depends_on:
+      - db
+    networks:
+      - ai-outreach-network
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: ai-outreach-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - ai-outreach-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:14
+    container_name: ai-outreach-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ai_outreach
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ai-outreach-network
+    restart: unless-stopped
+
+networks:
+  ai-outreach-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
