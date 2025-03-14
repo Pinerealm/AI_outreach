@@ -1,6 +1,6 @@
-# AI Outreach - Personalized Insurance Sales Platform
+# XI Outreach - Personalized Insurance Sales Platform
 
-AI Outreach is a personalized sales outreach platform designed specifically for insurance companies. It uses AI to generate highly personalized emails and call scripts based on each prospect's industry, engagement history, and likely objections.
+XI Outreach is a personalized sales outreach platform designed specifically for insurance companies. It uses AI to generate highly personalized emails and call scripts based on each prospect's industry, engagement history, and likely objections.
 
 ## Features
 
