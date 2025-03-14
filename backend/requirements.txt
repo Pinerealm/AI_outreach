@@ -2,6 +2,10 @@ sqlalchemy
 uvicorn
 fastapi
 pydantic
+pydantic[email]
+python-dotenv
 openai
 twilio
 sendgrid
+pymysql
+cryptography
