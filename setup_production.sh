@@ -3,7 +3,7 @@
 # Exit on error
 set -e
 
-echo "Setting up AI Outreach for production..."
+echo "Setting up XI Outreach for production..."
 
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
