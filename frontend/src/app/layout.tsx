@@ -8,7 +8,7 @@ import Footer from '../components/layout/footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AI Outreach - Personalized Insurance Sales',
+  title: 'XI Outreach - Personalized Insurance Sales',
   description: 'AI-driven personalization engine for insurance sales outreach',
 };
 

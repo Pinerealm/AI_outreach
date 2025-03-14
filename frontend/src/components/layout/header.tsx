@@ -8,13 +8,13 @@ export default function Header() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold text-blue-600">
-                AI Outreach
+                XI Outreach
               </Link>
             </div>
           </div>
           <div className="flex items-center">
             <span className="text-sm text-gray-500">
-              Insurance Company Personalized Outreach System
+              AI-powered Outreach System for Insurance Sales Agents
             </span>
           </div>
         </div>
