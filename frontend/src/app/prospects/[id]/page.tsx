@@ -10,10 +10,12 @@ import { useCalls } from '../../../hooks/use-calls';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../../components/ui/card';
 import Button from '../../../components/ui/button';
 import { prospectsApi } from '../../../services/api';
+import { use } from 'react';
 
-export default function ProspectDetailPage({ params }: { params: { id: string } }) {
+export default function ProspectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const prospectId = parseInt(params.id);
+  const { id } = use(params);
+  const prospectId = parseInt(id);
   const { prospect, loading, error } = useProspect(prospectId);
   const [isEditing, setIsEditing] = useState(false);
   const { generateEmail } = useEmails();
