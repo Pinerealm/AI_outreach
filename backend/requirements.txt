@@ -3,8 +3,11 @@ uvicorn
 fastapi
 pydantic
 pydantic[email]
+pydantic-settings
 python-dotenv
-openai
+langchain
+langchain-groq
+groq
 twilio
 sendgrid
 pymysql
