@@ -11,6 +11,6 @@ groq
 twilio
 sendgrid
 pymysql
-psycopg2
+psycopg2-binary
 cryptography
 pytest
