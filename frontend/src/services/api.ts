@@ -9,11 +9,10 @@ import {
   CallMakeResponse,
   CallOutcome
 } from '../types';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { env } from '../utils/env';
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: env.API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
