@@ -3,6 +3,8 @@ version: '3.8'
 services:
   backend:
     build: ./backend
+    env_file:
+      - backend/.env
     container_name: ai-outreach-backend
     ports:
       - "8000:8000"
@@ -21,6 +23,8 @@ services:
 
   frontend:
     build: ./frontend
+    env_file:
+      - backend/.env
     container_name: ai-outreach-frontend
     ports:
       - "3000:3000"
