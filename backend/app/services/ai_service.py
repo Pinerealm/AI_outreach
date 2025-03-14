@@ -1,17 +1,24 @@
-import openai
 from typing import Dict, List, Optional
-import os
+from app.config import settings
 from app.models.prospect import Prospect
 from app.models.engagement import Engagement
 
-# Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Import langchain and groq components
+from langchain_groq import ChatGroq
+from langchain_core.messages import SystemMessage, HumanMessage
+import json
+import re
+import os
 
 
 class AIService:
     def __init__(self):
-        self.model = "gpt-4"  # You can change this to the model you prefer
-    
+        self.model = "llama3-70b-8192"  # Default Groq model 
+        self.chat_model = ChatGroq(
+            api_key=settings.GROQ_API_KEY,
+            model_name=self.model
+        )
+
     def _get_industry_specifics(self, industry: str) -> Dict:
         """
         Get industry-specific keywords, pain points, and selling points
@@ -64,19 +71,19 @@ class AIService:
                 ]
             }
         }
-        
+
         # Normalize the industry name for matching
         industry_lower = industry.lower()
-        
+
         # Try to find an exact match
         if industry_lower in industry_map:
             return industry_map[industry_lower]
-        
+
         # If no exact match, try to find a partial match
         for key in industry_map:
             if key in industry_lower or industry_lower in key:
                 return industry_map[key]
-        
+
         # Default to generic if no match found
         return {
             "keywords": ["protection", "coverage", "risk management"],
@@ -87,7 +94,7 @@ class AIService:
                 "Risk management expertise"
             ]
         }
-    
+
     def _get_engagement_approach(self, engagement_history: List[Engagement]) -> Dict:
         """
         Determine the appropriate approach based on previous engagement history.
@@ -99,12 +106,12 @@ class AIService:
                 "focus": "introduction and value proposition",
                 "call_to_action": "schedule a brief call"
             }
-        
+
         # Check if they've opened/clicked emails
         opened_count = sum(1 for e in engagement_history if e.opened)
         clicked_count = sum(1 for e in engagement_history if e.clicked)
         responded_count = sum(1 for e in engagement_history if e.responded)
-        
+
         if responded_count > 0:
             return {
                 "approach": "warm follow-up",
@@ -140,10 +147,10 @@ class AIService:
         """
         # Get industry-specific information
         industry_specifics = self._get_industry_specifics(prospect.industry)
-        
+
         # Get engagement-based approach
         engagement_approach = self._get_engagement_approach(engagement_history)
-        
+
         # Define potential objections based on industry
         potential_objections = {
             "technology": ["We already have cyber insurance", "Our tech stack is secure", "Insurance is too expensive"],
@@ -152,12 +159,12 @@ class AIService:
             "retail": ["Our business is too small", "We don't have valuable physical assets", "Online retail has different needs"],
             "manufacturing": ["We have long-standing insurance partners", "Our safety record is excellent", "Our equipment is well-maintained"]
         }
-        
+
         # Get objections for this industry or use generic ones
         industry_lower = prospect.industry.lower()
         objections = next((v for k, v in potential_objections.items() if k in industry_lower), 
                          ["We already have insurance", "It's too expensive", "We don't see the value"])
-        
+
         # Prepare the prompt for the AI
         prompt = f"""
         Generate a personalized cold email for an insurance company reaching out to {prospect.company_name} in the {prospect.industry} industry.
@@ -194,30 +201,31 @@ class AIService:
         Output format:
         {{"subject": "Email subject line", "body": "Full email body"}}
         """
-        
+
         try:
-            response = await openai.ChatCompletion.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are an expert in writing personalized insurance sales outreach emails."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=800
-            )
+            messages = [
+                SystemMessage(content="You are an expert in writing personalized insurance sales outreach emails."),
+                HumanMessage(content=prompt)
+            ]
             
-            # Parse the response
-            content = response.choices[0].message.content
-            
+            response = await self.chat_model.ainvoke(messages)
+            content = response.content
+
             # Extract JSON from the content - if the AI didn't return proper JSON,
             # we'll need to parse it
-            import json
-            import re
-            
-            # Try to extract JSON if it's embedded in the text
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if json_match:
-                email_data = json.loads(json_match.group(0))
+                try:
+                    email_data = json.loads(json_match.group(0))
+                except json.JSONDecodeError:
+                    # If JSON parsing fails, try to extract subject and body manually
+                    subject_match = re.search(r'subject[:"]*([^"]*)["\n]', content, re.IGNORECASE)
+                    body_match = re.search(r'body[:"]*([^"]*)["\n]', content, re.IGNORECASE | re.DOTALL)
+                    
+                    email_data = {
+                        "subject": subject_match.group(1).strip() if subject_match else "Insurance Solution for " + prospect.company_name,
+                        "body": body_match.group(1).strip() if body_match else content
+                    }
             else:
                 # If no JSON found, try to extract subject and body manually
                 subject_match = re.search(r'subject[:"]*([^"]*)["\n]', content, re.IGNORECASE)
@@ -227,16 +235,16 @@ class AIService:
                     "subject": subject_match.group(1).strip() if subject_match else "Insurance Solution for " + prospect.company_name,
                     "body": body_match.group(1).strip() if body_match else content
                 }
-            
+
             # Add metadata for further personalization and tracking
             email_data["metadata"] = {
                 "industry_specifics": industry_specifics,
                 "engagement_approach": engagement_approach,
                 "potential_objections": objections
             }
-            
+
             return email_data
-            
+
         except Exception as e:
             print(f"Error generating personalized email: {e}")
             # Fallback to a template-based approach
@@ -255,7 +263,7 @@ class AIService:
                 Insurance Specialist
                 """
             }
-            
+
     async def generate_engagement_advice(self, prospect: Prospect, email_content: Dict) -> str:
         """
         Generate advice for the sales rep on how to further engage with this prospect.
@@ -276,20 +284,16 @@ class AIService:
         
         Keep it concise and actionable, under 100 words.
         """
-        
+
         try:
-            response = await openai.ChatCompletion.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are an expert sales coach specializing in insurance sales."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=150
-            )
+            messages = [
+                SystemMessage(content="You are an expert sales coach specializing in insurance sales."),
+                HumanMessage(content=prompt)
+            ]
             
-            return response.choices[0].message.content
-            
+            response = await self.chat_model.ainvoke(messages)
+            return response.content
+
         except Exception as e:
             print(f"Error generating engagement advice: {e}")
             return """

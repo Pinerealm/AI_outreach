@@ -7,6 +7,7 @@ from app.models.prospect import Prospect
 from app.models.engagement import Engagement
 from sqlalchemy.orm import Session
 from app.services.ai_service import AIService
+from langchain_core.messages import SystemMessage, HumanMessage
 
 
 class CallService:
@@ -22,9 +23,6 @@ class CallService:
         """
         Generate a call script for the prospect based on their industry and engagement history.
         """
-        # This will be similar to the email personalization but tailored for calls
-        # For simplicity, we'll reuse the AI service but modify the prompt
-        
         # Get industry-specific information
         industry_specifics = self.ai_service._get_industry_specifics(prospect.industry)
         
@@ -61,17 +59,13 @@ class CallService:
         """
         
         try:
-            response = await openai.ChatCompletion.create(
-                model=self.ai_service.model,
-                messages=[
-                    {"role": "system", "content": "You are an expert in writing effective cold call scripts for insurance sales."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=600
-            )
+            messages = [
+                SystemMessage(content="You are an expert in writing effective cold call scripts for insurance sales."),
+                HumanMessage(content=prompt)
+            ]
             
-            script = response.choices[0].message.content
+            response = await self.ai_service.chat_model.ainvoke(messages)
+            script = response.content
             
             return {
                 "title": f"Call Script for {prospect.company_name}",
