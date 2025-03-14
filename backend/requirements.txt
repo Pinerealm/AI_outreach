@@ -10,6 +10,6 @@ langchain-groq
 groq
 twilio
 sendgrid
-pymysql
+psycopg2
 cryptography
 pytest
