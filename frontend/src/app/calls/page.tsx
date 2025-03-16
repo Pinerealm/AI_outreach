@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import CallScriptGenerator from '../../components/calls/call-script-generator';
 import CallScriptPreview from '../../components/calls/call-script-preview';
 import { useCalls } from '../../hooks/use-calls';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 
 export default function CallsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const prospectId = searchParams.get('prospectId');
-  const { generatedScript, generateCallScript, loading } = useCalls();
+  const { generatedScript, generateCallScript } = useCalls();
   const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
 
   // If prospectId is provided in the URL, auto-generate a script for that prospect
@@ -21,7 +20,7 @@ export default function CallsPage() {
         console.error('Error auto-generating call script:', error);
       });
     }
-  }, [prospectId]);
+  }, [prospectId, generateCallScript]);
 
   return (
     <div className="space-y-6">
@@ -53,7 +52,10 @@ export default function CallsPage() {
       </div>
 
       {activeTab === 'generate' ? (
-        <CallScriptGenerator />
+        <>
+          <CallScriptGenerator />
+          {generatedScript && <CallScriptPreview callScript={generatedScript} />}
+        </>
       ) : (
         <Card>
           <CardHeader>
