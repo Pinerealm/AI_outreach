@@ -2,7 +2,6 @@ import axios from 'axios';
 import { 
   Prospect, 
   ProspectCreate, 
-  ProspectImport, 
   EmailGenerateResponse, 
   EmailSendResponse,
   CallScriptGenerateResponse,
@@ -86,12 +85,12 @@ export const emailsApi = {
     return response.data;
   },
   
-  getEngagement: async (engagementId: number): Promise<any> => {
+  getEngagement: async (engagementId: number): Promise<{ id: number; type: string; status: string; metadata: Record<string, unknown> }> => {
     const response = await api.get(`/emails/engagement/${engagementId}`);
     return response.data;
   },
   
-  trackEngagement: async (engagementId: number, eventType: 'open' | 'click' | 'reply'): Promise<any> => {
+  trackEngagement: async (engagementId: number, eventType: 'open' | 'click' | 'reply'): Promise<{ id: number; type: string; status: string; event: string }> => {
     const response = await api.post(`/emails/engagement/${engagementId}/track`, null, { params: { event_type: eventType } });
     return response.data;
   },
@@ -109,14 +108,16 @@ export const callsApi = {
     return response.data;
   },
   
-  updateOutcome: async (engagementId: number, outcome: CallOutcome): Promise<any> => {
+  updateOutcome: async (engagementId: number, outcome: CallOutcome): Promise<{ success: boolean; engagement_id: number; updated: boolean }> => {
     const response = await api.post(`/calls/update-outcome`, outcome, { params: { engagement_id: engagementId } });
     return response.data;
   },
 };
 
-export default {
+const apiService = {
   prospects: prospectsApi,
   emails: emailsApi,
   calls: callsApi,
 };
+
+export default apiService;
