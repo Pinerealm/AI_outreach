@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useProspects } from '../../hooks/use-prospects';
-import { Prospect } from '../../types';
 import Button from '../ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 

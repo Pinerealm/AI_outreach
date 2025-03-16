@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { formatDate } from '../../utils/helpers';
 import { EmailSendResponse } from '../../types';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';

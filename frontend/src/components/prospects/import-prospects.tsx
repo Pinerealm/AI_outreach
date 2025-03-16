@@ -1,7 +1,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { useProspects } from '../../hooks/use-prospects';
 import { ProspectCreate } from '../../types';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import Button from '../ui/button';
 
 export default function ImportProspects() {

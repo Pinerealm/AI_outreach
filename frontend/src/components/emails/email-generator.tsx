@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useProspects } from '../../hooks/use-prospects';
 import { useEmails } from '../../hooks/use-emails';
-import { Prospect, EmailGenerateResponse } from '../../types';
+import { EmailGenerateResponse } from '../../types';
 import Button from '../ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
 import Select from '../ui/select';

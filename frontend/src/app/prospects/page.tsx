@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import ProspectList from '../../components/prospects/prospect-list';
 import ImportProspects from '../../components/prospects/import-prospects';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
-import Button from '../../components/ui/button';
 
 export default function ProspectsPage() {
   const [activeTab, setActiveTab] = useState<'list' | 'import'>('list');

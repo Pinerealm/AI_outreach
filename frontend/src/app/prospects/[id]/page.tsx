@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProspect } from '../../../hooks/use-prospects';
 import { ProspectCreate } from '../../../types';
