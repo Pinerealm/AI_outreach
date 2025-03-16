@@ -7,11 +7,12 @@ import EmailPreview from '../../components/emails/email-preview';
 import { useEmails } from '../../hooks/use-emails';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Button from '../../components/ui/button';
+import { EmailGenerateResponse } from '../../types';
 
 export default function EmailsPage() {
   const searchParams = useSearchParams();
   const prospectId = searchParams.get('prospectId');
-  const { generatedEmail, generateEmail } = useEmails();
+  const { generatedEmail, generateEmail, sendEmail } = useEmails();
   const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
 
   // If prospectId is provided in the URL, auto-generate an email for that prospect
@@ -22,6 +23,14 @@ export default function EmailsPage() {
       });
     }
   }, [prospectId, generateEmail]);
+
+  const handleSendEmail = (email: EmailGenerateResponse) => {
+    if (email.prospect_id) {
+      sendEmail(email.prospect_id).catch(error => {
+        console.error('Error sending email:', error);
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -47,7 +56,7 @@ export default function EmailsPage() {
       {activeTab === 'generate' ? (
         <>
           <EmailGenerator />
-          {generatedEmail && <EmailPreview email={generatedEmail} />}
+          {generatedEmail && <EmailPreview email={generatedEmail} onSend={handleSendEmail} />}
         </>
       ) : (
         <Card>
