@@ -1,84 +1,66 @@
 import { useState } from 'react';
-import { emailsApi } from '../services/api';
 import { EmailGenerateResponse, EmailSendResponse } from '../types';
 
-export const useEmails = () => {
-  const [generatedEmail, setGeneratedEmail] = useState<EmailGenerateResponse | null>(null);
-  const [sentEmail, setSentEmail] = useState<EmailSendResponse | null>(null);
+export function useEmails() {
+  const [generatedEmail, setGeneratedEmail] = useState<EmailGenerateResponse | EmailSendResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const generateEmail = async (prospectId: number) => {
+  const generateEmail = async (prospectId: number): Promise<EmailGenerateResponse> => {
     setLoading(true);
+    setError(null);
+    
     try {
-      const data = await emailsApi.generate(prospectId);
+      // Replace with your actual API endpoint
+      const response = await fetch(`/api/emails/generate?prospectId=${prospectId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate email');
+      }
+      
+      const data: EmailGenerateResponse = await response.json();
       setGeneratedEmail(data);
-      setError(null);
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to generate email'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const sendEmail = async (prospectId: number) => {
+  const sendEmail = async (prospectId: number): Promise<EmailSendResponse> => {
     setLoading(true);
+    setError(null);
+    
     try {
-      const data = await emailsApi.send(prospectId);
-      setSentEmail(data);
-      setError(null);
+      // Replace with your actual API endpoint
+      const response = await fetch(`/api/emails/send?prospectId=${prospectId}`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+      
+      const data: EmailSendResponse = await response.json();
+      setGeneratedEmail(data);
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to send email'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
-    }
-  };
-
-  const sendBatchEmails = async (prospectIds: number[]) => {
-    setLoading(true);
-    try {
-      const data = await emailsApi.sendBatch(prospectIds);
-      setError(null);
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to send batch emails'));
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getEmailEngagement = async (engagementId: number) => {
-    try {
-      return await emailsApi.getEngagement(engagementId);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to get email engagement'));
-      throw err;
-    }
-  };
-
-  const trackEmailEngagement = async (engagementId: number, eventType: 'open' | 'click' | 'reply') => {
-    try {
-      return await emailsApi.trackEngagement(engagementId, eventType);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to track email engagement'));
-      throw err;
     }
   };
 
   return {
     generatedEmail,
-    sentEmail,
     loading,
     error,
     generateEmail,
-    sendEmail,
-    sendBatchEmails,
-    getEmailEngagement,
-    trackEmailEngagement,
+    sendEmail
   };
-};
+}
