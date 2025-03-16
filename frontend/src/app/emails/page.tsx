@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import EmailGenerator from '../../components/emails/email-generator';
 import EmailPreview from '../../components/emails/email-preview';
 import { useEmails } from '../../hooks/use-emails';
@@ -9,10 +9,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/ca
 import Button from '../../components/ui/button';
 
 export default function EmailsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const prospectId = searchParams.get('prospectId');
-  const { generatedEmail, generateEmail, loading } = useEmails();
+  const { generatedEmail, generateEmail } = useEmails();
   const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
 
   // If prospectId is provided in the URL, auto-generate an email for that prospect
@@ -22,7 +21,7 @@ export default function EmailsPage() {
         console.error('Error auto-generating email:', error);
       });
     }
-  }, [prospectId]);
+  }, [prospectId, generateEmail]);
 
   return (
     <div className="space-y-6">
@@ -31,30 +30,25 @@ export default function EmailsPage() {
       </div>
 
       <div className="flex space-x-2 border-b border-gray-200 mb-6">
-        <button
-          className={`py-2 px-4 font-medium text-sm focus:outline-none ${
-            activeTab === 'generate'
-              ? 'border-b-2 border-blue-500 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
+        <Button
+          variant={activeTab === 'generate' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('generate')}
         >
           Generate Email
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm focus:outline-none ${
-            activeTab === 'history'
-              ? 'border-b-2 border-blue-500 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
+        </Button>
+        <Button
+          variant={activeTab === 'history' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('history')}
         >
           Email History
-        </button>
+        </Button>
       </div>
 
       {activeTab === 'generate' ? (
-        <EmailGenerator />
+        <>
+          <EmailGenerator />
+          {generatedEmail && <EmailPreview email={generatedEmail} />}
+        </>
       ) : (
         <Card>
           <CardHeader>
