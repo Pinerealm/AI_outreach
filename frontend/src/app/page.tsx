@@ -59,7 +59,7 @@ export default function HomePage() {
             </div>
             <h2 className="text-xl font-semibold mb-2">Generate Call Scripts</h2>
             <p className="text-gray-600 mb-4">
-              Create intelligent cold call scripts tailored to each prospect's industry and needs.
+              Create intelligent cold call scripts tailored to each prospect&apos;s industry and needs.
             </p>
             <Link href="/calls" className="mt-auto">
               <Button>Create Call Scripts</Button>
@@ -72,7 +72,7 @@ export default function HomePage() {
         <h2 className="text-xl font-semibold text-blue-800 mb-2">How It Works</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-700">
           <li>Add your prospects with information about their company and industry</li>
-          <li>Our AI analyzes the prospect's industry and any previous engagement history</li>
+          <li>Our AI analyzes the prospect&apos;s industry and any previous engagement history</li>
           <li>Generate personalized emails or call scripts tailored to each prospect</li>
           <li>Track engagement and use that data to improve future communications</li>
         </ol>
