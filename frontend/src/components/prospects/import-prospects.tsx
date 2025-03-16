@@ -76,6 +76,7 @@ export default function ImportProspects() {
             failed++;
           }
         } catch (e) {
+          console.error('Error parsing line:', line, e);
           failed++;
         }
       }
